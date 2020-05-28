@@ -1,6 +1,8 @@
 from flask import Flask, render_template,request,url_for,redirect,flash
 import json
 import os.path
+from werkzeug.utils import secure_filename
+
 
 app=Flask(__name__)
 app.secret_key='hiehbcdsjcvs7eyhnm'
@@ -25,10 +27,18 @@ def index():
         if os.path.exists('urls.json'):
             with open('urls.json') as url_file:
                 urlList=json.load(url_file)
+
         if request.form['shortname'] in urlList.keys():
             flash('That shortened url is already in use. Please select another one')
             return redirect(url_for('homepage'))
-        urlList[request.form['shortname']]={'url':request.form['URL']}
+
+        if 'url' in request.form.keys():
+            urlList[request.form['shortname']]={'url':request.form['URL']}
+        else:
+            fd=request.files['file']
+            fname=request.form['shortname'] + secure_filename(fd.filename)
+            fd.save('/Volumes/chaitrali/ML/URL_Shortener/'+fname)
+            urlList[request.form['shortname']]={'file':fname}
         #add dictionary entries to json file
         with open('urls.json','w') as url_file:
             json.dump(urlList, url_file)
