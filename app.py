@@ -46,3 +46,14 @@ def index():
         return render_template('index.html', shortname=request.form['shortname'])
     else:
         return redirect(url_for('homepage'))
+
+
+@app.route('/<string:shortname>')
+
+def redirect_to_url(shortname):
+    if os.path.exists('urls.json'):
+        with open('urls.json') as url_file:
+            urlList=json.load(url_file)
+            if shortname in urlList.keys():
+                if 'url' in urlList[shortname].keys():
+                    return redirect(urlList[shortname]['url'])
