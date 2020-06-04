@@ -15,7 +15,7 @@ def homepage():
     return render_template('home.html')
 
 #give URL path for the actual functionality page
-@app.route('/index',methods=['GET','POST'])
+@app.route('/index', methods=['GET','POST'])
 
 #Function definition for index page
 def index():
@@ -33,12 +33,13 @@ def index():
             return redirect(url_for('homepage'))
 
         if 'url' in request.form.keys():
-            urlList[request.form['shortname']]={'url':request.form['URL']}
+            urlList[request.form['shortname']]={'url':request.form['url']}
         else:
             fd=request.files['file']
             fname=request.form['shortname'] + secure_filename(fd.filename)
-            fd.save('/Volumes/chaitrali/ML/URL_Shortener/'+fname)
+            fd.save('/Volumes/chaitrali/ML/URL_Shortener/static/user_files/'+fname)
             urlList[request.form['shortname']]={'file':fname}
+
         #add dictionary entries to json file
         with open('urls.json','w') as url_file:
             json.dump(urlList, url_file)
@@ -49,7 +50,6 @@ def index():
 
 
 @app.route('/<string:shortname>')
-
 def redirect_to_url(shortname):
     if os.path.exists('urls.json'):
         with open('urls.json') as url_file:
@@ -57,3 +57,5 @@ def redirect_to_url(shortname):
             if shortname in urlList.keys():
                 if 'url' in urlList[shortname].keys():
                     return redirect(urlList[shortname]['url'])
+                else:
+                    return redirect(url_for('static', filename='user_files/'+urlList[shortname]['file']))
