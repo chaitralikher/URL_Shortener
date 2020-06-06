@@ -1,4 +1,4 @@
-from flask import Flask, render_template,request,url_for,redirect,flash
+from flask import Flask, render_template,request,url_for,redirect,flash, abort
 import json
 import os.path
 from werkzeug.utils import secure_filename
@@ -59,3 +59,9 @@ def redirect_to_url(shortname):
                     return redirect(urlList[shortname]['url'])
                 else:
                     return redirect(url_for('static', filename='user_files/'+urlList[shortname]['file']))
+    return abort(404)
+
+@app.errorhandler(404)
+
+def page_not_found(error):
+    return render_template('page_not_found.html'),404
