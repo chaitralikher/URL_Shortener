@@ -21,3 +21,16 @@
     <br>
     <input type="submit" value="Shorten URL">
 </form>
+
+
+{%if codes%}
+<h3>Shortened URLs created by you:</h3>
+<ul>
+{%for code in codes %}
+<a href="{{url_for('redirect_to_url',shortname=code)}}">
+<li>{{code}}</li>
+</a>
+{% endfor %}
+</ul>
+
+{% endif %}

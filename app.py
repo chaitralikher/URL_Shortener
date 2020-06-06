@@ -1,4 +1,4 @@
-from flask import Flask, render_template,request,url_for,redirect,flash, abort
+from flask import Flask, render_template,request,url_for,redirect,flash, abort,session
 import json
 import os.path
 from werkzeug.utils import secure_filename
@@ -12,7 +12,7 @@ app.secret_key='hiehbcdsjcvs7eyhnm'
 
 #function definition for homepage returns the html page
 def homepage():
-    return render_template('home.html')
+    return render_template('home.html',codes=session.keys())
 
 #give URL path for the actual functionality page
 @app.route('/index', methods=['GET','POST'])
@@ -43,7 +43,7 @@ def index():
         #add dictionary entries to json file
         with open('urls.json','w') as url_file:
             json.dump(urlList, url_file)
-
+            session[request.form['shortname']]= True #can be set to timestamp too
         return render_template('index.html', shortname=request.form['shortname'])
     else:
         return redirect(url_for('homepage'))
