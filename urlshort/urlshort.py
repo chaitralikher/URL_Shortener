@@ -1,21 +1,20 @@
-from flask import Flask, render_template,request,url_for,redirect,flash, abort,session,jsonify
+from flask import Blueprint, render_template,request,url_for,redirect,flash, abort,session,jsonify
 import json
 import os.path
 from werkzeug.utils import secure_filename
 
 
-app=Flask(__name__)
-app.secret_key='hiehbcdsjcvs7eyhnm'
+bp = Blueprint('urlshort',__name__)
 
 #give URL path for the homepage
-@app.route('/')
+@bp.route('/')
 
 #function definition for homepage returns the html page
 def homepage():
     return render_template('home.html',codes=session.keys())
 
 #give URL path for the actual functionality page
-@app.route('/index', methods=['GET','POST'])
+@bp.route('/index', methods=['GET','POST'])
 
 #Function definition for index page
 def index():
@@ -30,14 +29,14 @@ def index():
 
         if request.form['shortname'] in urlList.keys():
             flash('That shortened url is already in use. Please select another one')
-            return redirect(url_for('homepage'))
+            return redirect(url_for('urlshort.homepage'))
 
         if 'url' in request.form.keys():
             urlList[request.form['shortname']]={'url':request.form['url']}
         else:
             fd=request.files['file']
             fname=request.form['shortname'] + secure_filename(fd.filename)
-            fd.save('/Volumes/chaitrali/ML/URL_Shortener/static/user_files/'+fname)
+            fd.save('/Volumes/chaitrali/ML/URL_Shortener/urlshort/static/user_files/'+fname)
             urlList[request.form['shortname']]={'file':fname}
 
         #add dictionary entries to json file
@@ -46,10 +45,10 @@ def index():
             session[request.form['shortname']]= True #can be set to timestamp too
         return render_template('index.html', shortname=request.form['shortname'])
     else:
-        return redirect(url_for('homepage'))
+        return redirect(url_for('urlshort.homepage'))
 
 
-@app.route('/<string:shortname>')
+@bp.route('/<string:shortname>')
 def redirect_to_url(shortname):
     if os.path.exists('urls.json'):
         with open('urls.json') as url_file:
@@ -61,10 +60,10 @@ def redirect_to_url(shortname):
                     return redirect(url_for('static', filename='user_files/'+urlList[shortname]['file']))
     return abort(404)
 
-@app.errorhandler(404)
+@bp.errorhandler(404)
 def page_not_found(error):
     return render_template('page_not_found.html'),404
 
-@app.route('/session')
+@bp.route('/session')
 def session_api():
     return jsonify(list(session.keys()))
